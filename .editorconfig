@@ -67,3 +67,9 @@ dotnet_naming_rule.private_fields_should_be_underscore_camel_case.symbols = priv
 dotnet_naming_rule.private_fields_should_be_underscore_camel_case.style = underscore_camel_case
 dotnet_naming_symbols.private_fields.applicable_kinds = field
 dotnet_naming_symbols.private_fields.applicable_accessibilities = private
+# SA1503: Braces should not be omitted
+dotnet_diagnostic.SA1503.severity = none
+# SA1101: Prefix local calls with this
+dotnet_diagnostic.SA1101.severity = none
+# SA1010: Opening square brackets should be spaced correctly
+dotnet_diagnostic.SA1010.severity = none
