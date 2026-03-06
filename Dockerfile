@@ -35,4 +35,4 @@ COPY --from=ghcr.io/smartevp8/osrm_wrapper:latest /build/build/libosrm_wrapper.s
 
 # Copy everything else including data/
 COPY . .
-RUN dotnet build --no-restore -c Release
+RUN dotnet build --no-restore
