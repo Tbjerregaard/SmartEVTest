@@ -4,7 +4,6 @@ WORKDIR /app
 # Copy solution and restore
 COPY EVSimulation.slnx .
 COPY Directory.Packages.props .
-COPY Simulation/Simulation.csproj Simulation/
 COPY API/API.csproj API/
 COPY Core/Core.csproj Core/
 COPY Engine/Engine.csproj Engine/
