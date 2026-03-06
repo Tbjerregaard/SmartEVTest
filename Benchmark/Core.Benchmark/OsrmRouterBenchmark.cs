@@ -28,8 +28,8 @@ public class OsrmRouterBenchmark
             ?? throw new InvalidOperationException("OsrmDataPath not set in project.");
         _router = new Routing.OSRMRouter(path);
 
-        var stations = new List<Station>(50);
-        for (ushort i = 0; i < 50; i++)
+        var stations = new List<Station>(35);
+        for (ushort i = 0; i < 35; i++)
         {
             stations.Add(new Station(
                 id: i,
@@ -42,7 +42,7 @@ public class OsrmRouterBenchmark
         }
 
         _router.InitStations(stations);
-        _stationIndices = Enumerable.Range(0, 50).ToArray();
+        _stationIndices = Enumerable.Range(0, 35).ToArray();
 
         _evCoordinates = new (double Lon, double Lat)[1000];
         _evCoordsFlat = new double[1000 * 2];
@@ -55,8 +55,8 @@ public class OsrmRouterBenchmark
             _evCoordsFlat[(i * 2) + 1] = lat;
         }
 
-        _stationCoordsFlat = new double[50 * 2];
-        for (var i = 0; i < 50; i++)
+        _stationCoordsFlat = new double[35 * 2];
+        for (var i = 0; i < 35; i++)
         {
             _stationCoordsFlat[i * 2] = stations[i].Position.Longitude;
             _stationCoordsFlat[(i * 2) + 1] = stations[i].Position.Latitude;
@@ -87,10 +87,10 @@ public class OsrmRouterBenchmark
     }
 
     /// <summary>
-    /// Benchmarks bulk querying of 1000 cars to 50 stations.
+    /// Benchmarks bulk querying of 1000 cars to 35 stations.
     /// </summary>
     [Benchmark]
-    public void Query1000Cars50StationsBulk() => _ = _router.QueryPointsToPoints(_evCoordsFlat, 1000, _stationCoordsFlat, 50);
+    public void Query1000Cars35StationsBulk() => _ = _router.QueryPointsToPoints(_evCoordsFlat, 1000, _stationCoordsFlat, 35);
 
     /// <summary>
     /// Benchmarks querying a single destination.
