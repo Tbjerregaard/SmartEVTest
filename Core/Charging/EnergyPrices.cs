@@ -23,7 +23,7 @@ public static class EnergyPrices
     /// Loads energy prices from a CSV file and returns them as an immutable array.
     /// </summary>
     /// <param name="csvPath">The path to the csv containing the pricing data.</param>
-    /// <returns>An immutable array of (Day, Hour, Price) tuples.</returns>
+    /// <returns>An immutable array of (Day, Hour, Price) tuple.</returns>
     private static ImmutableArray<(DayOfWeek Day, int Hour, float Price)> LoadFromCsv(string csvPath) =>
         [.. File.ReadAllLines(csvPath)
             .Skip(1)
