@@ -27,8 +27,8 @@ jobs:
           push: false
           load: true
           tags: smartev-test
-          cache-from: type=gha
-          cache-to: type=gha,mode=max
+          cache-from: type=gha,scope=smartev
+          cache-to: type=gha,mode=min,scope=smartev
 
       - name: Run tests
         run: docker run smartev-test dotnet test
