@@ -22,7 +22,7 @@ public class Station(ushort id,
                 Random random)
 {
 
-    /// <summary>The current KWh price at the station.</summary>
+    /// <summary>The current KWh price at the station ah.</summary>
     public float Price = price;
     private readonly Random _random = random;
     private readonly ushort _id = id;

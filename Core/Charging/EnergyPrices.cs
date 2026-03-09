@@ -14,9 +14,24 @@ using System.Globalization;
 public static class EnergyPrices
 {
     /// <summary>
-    /// Array of energy price for each hour.
+    /// Array of energy prices for each hour.
     /// </summary>
-    private static ImmutableArray<(DayOfWeek Day, int Hour, float Price)> _energyPriceTable;
+    private static ImmutableArray<(DayOfWeek Day, int Hour, float Price)> _energyPriceTable =
+        LoadFromCsv(Path.Combine(AppDomain.CurrentDomain.BaseDirectory, "data", "energy_prices.csv"));
+
+    /// <summary>
+    /// Loads energy prices from a CSV file and returns them as an immutable array.
+    /// </summary>
+    /// <param name="csvPath">The path to the csv containing the pricing data.</param>
+    /// <returns>An immutable array of (Day, Hour, Price) tuple.</returns>
+    private static ImmutableArray<(DayOfWeek Day, int Hour, float Price)> LoadFromCsv(string csvPath) =>
+        [.. File.ReadAllLines(csvPath)
+            .Skip(1)
+            .Select(line => line.Split(','))
+            .Select(parts => (
+                Day: Enum.Parse<DayOfWeek>(parts[0]),
+                Hour: int.Parse(parts[1]),
+                Price: float.Parse(parts[2], CultureInfo.InvariantCulture)))];
 
     /// <summary>
     /// Initializes the energy price table by reading the csv file and coverting to (Day, Hour, Price).
@@ -24,13 +39,7 @@ public static class EnergyPrices
     /// <param name="csvPath">The path to the csv containing the pricing data.</param>
     public static void Initialize(string csvPath)
     {
-        _energyPriceTable = [.. File.ReadAllLines(csvPath)
-            .Skip(1)
-            .Select(line => line.Split(','))
-            .Select(parts => (
-                Day: Enum.Parse<DayOfWeek>(parts[0]),
-                Hour: int.Parse(parts[1]),
-                Price: float.Parse(parts[2], CultureInfo.InvariantCulture)))];
+        _energyPriceTable = LoadFromCsv(csvPath);
     }
 
     /// <summary>

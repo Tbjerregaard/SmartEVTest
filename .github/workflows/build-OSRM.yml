@@ -19,13 +19,6 @@ jobs:
         with:
           lfs: true
 
-      - name: Cache LFS object
-        uses: actions/cache@v5
-        with:
-          path: .git/lfs
-          key: lfs-${{ hashFiles('output.osm.pbf') }}
-          restore-keys: lfs-
-
       - name: Show available memory
         run: free -h
 
@@ -47,7 +40,3 @@ jobs:
           push: true
           tags: |
             ghcr.io/tbjerregaard/osrm_builder:latest
-            ghcr.io/tbjerregaard/osrm_builder:${{ hashFiles('output.osm.pbf') }}
-          build-args: BUILDKIT_PROGRESS=plain
-          cache-from: type=gha
-          cache-to: type=gha,mode=max
