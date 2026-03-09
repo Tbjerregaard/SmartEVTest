@@ -14,7 +14,7 @@ using System.Globalization;
 public static class EnergyPrices
 {
     /// <summary>
-    /// Array of energy price for each hour.
+    /// Array of energy prices for each hour.
     /// </summary>
     private static ImmutableArray<(DayOfWeek Day, int Hour, float Price)> _energyPriceTable =
         LoadFromCsv(Path.Combine(AppDomain.CurrentDomain.BaseDirectory, "data", "energy_prices.csv"));
