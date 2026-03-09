@@ -1,4 +1,4 @@
-FROM debian:bookworm-slim AS osrm-build
+FROM mcr.microsoft.com/dotnet/sdk:10.0 AS osrm-build
 
 RUN apt-get update && apt-get install -y \
     build-essential cmake pkg-config curl \
@@ -11,7 +11,7 @@ RUN curl -L https://github.com/Project-OSRM/osrm-backend/archive/362b388d7e05822
     && cd osrm-backend-362b388d7e0582291662105d7bfc004a3a44a393 \
     && mkdir -p build && cd build \
     && cmake .. -DCMAKE_BUILD_TYPE=Release \
-    && make -j2 \
+    && make -j$(nproc) \
     && make install \
     && cd ../.. \
     && rm -rf osrm-backend-362b388d7e0582291662105d7bfc004a3a44a393
@@ -24,16 +24,12 @@ RUN osrm-extract -p /usr/local/share/osrm/profiles/car.lua output.osm.pbf \
     && osrm-contract output.osm.pbf \
     && rm output.osm.pbf
 
-# Final image — just the processed data + binaries needed at runtime
+# Final image — processed data + runtime libraries only
 FROM debian:bookworm-slim
 
 RUN apt-get update && apt-get install -y \
-    libboost-filesystem1.81.0 libboost-iostreams1.81.0 \
-    libboost-thread1.81.0 libboost-program-options1.81.0 \
-    liblua5.4-0 libtbb12 \
+    libboost-all-dev liblua5.4-0 libtbb12 \
     && rm -rf /var/lib/apt/lists/*
 
 COPY --from=osrm-build /usr/local/bin/osrm-* /usr/local/bin/
-COPY --from=osrm-build /usr/local/share/osrm /usr/local/share/osrm
 COPY --from=osrm-build /data /data
-
