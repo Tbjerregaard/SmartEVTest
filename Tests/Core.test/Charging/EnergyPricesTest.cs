@@ -6,15 +6,6 @@ using Core.Charging;
 public class EnergyPricesTest
 {
     /// <summary>
-    /// Initializes a new instance of the <see cref="EnergyPricesTest"/> class.
-    /// </summary>
-    public EnergyPricesTest()
-    {
-        var csvPath = Path.Combine(AppDomain.CurrentDomain.BaseDirectory, "data", "energy_prices.csv");
-        EnergyPrices.Initialize(csvPath);
-    }
-
-    /// <summary>
     /// Verifies that <see cref="EnergyPrices.GetHourPrice"/> returns the correct price for a given hour.
     /// </summary>
     /// <param name="day">The day from DayOfWeek enum.</param>
