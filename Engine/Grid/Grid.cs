@@ -36,7 +36,7 @@ public class SpawnGrid(List<List<GridCell>> spawnableCells, Position min, double
 /// </summary>
 /// <param name="spawnable">Bool for spawnable or now.</param>
 /// <param name="centerpoint">Center of the grid.</param>
-public class GridCell(bool spawnable, Position centerpoint)
+public class GridCell(bool spawnable, Position centerpoint, double latSize, double lonSize)
 {
     /// <summary>
     /// Spawnable indicates whether this cell is spawnable (true) or not (false).
@@ -47,4 +47,28 @@ public class GridCell(bool spawnable, Position centerpoint)
     /// The midpoint of the cell, represented as a Position (latitude and longitude).
     /// </summary>
     public Position Centerpoint = centerpoint;
+
+    /// <summary>
+    /// Computes the geographic bounding box of the cell based on its centre point and dimensions.
+    /// </summary>
+    /// <returns>
+    /// A tuple containing the minimum and maximum positions of the cell,
+    /// where Min is the south-west corner and Max is the north-east corner.
+    /// </returns>
+    public double LatSize { get; } = latSize;
+    public double LonSize { get; } = lonSize;
+
+    public (Position Min, Position Max) BoundingBox
+{
+    get
+    {
+        var halfLat = LatSize / 2.0;
+        var halfLon = LonSize / 2.0;
+
+        var min = new Position(Centerpoint.Longitude - halfLon, Centerpoint.Latitude - halfLat);
+        var max = new Position(Centerpoint.Longitude + halfLon, Centerpoint.Latitude + halfLat);
+
+        return (min, max);
+    }
+}
 }

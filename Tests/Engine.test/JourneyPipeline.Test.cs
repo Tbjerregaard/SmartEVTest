@@ -16,8 +16,8 @@ public class JourneyPipelineTests
 
     private static Position Pos() => new(0.0, 0.0);
     private static City MakeCity(string name, int pop) => new(name, Pos(), pop);
-    private static GridCell SpawnableCell() => new(spawnable: true, Pos());
-    private static GridCell NonSpawnableCell() => new(spawnable: false, Pos());
+    private static GridCell SpawnableCell() => new(spawnable: true, Pos(), latSize: 1.0, lonSize: 1.0);
+    private static GridCell NonSpawnableCell() => new(spawnable: false, Pos(), latSize: 1.0, lonSize: 1.0);
 
     private static SpawnGrid MakeGrid(int spawnableCount, int nonSpawnableCount = 0)
     {
@@ -108,6 +108,38 @@ public class JourneyPipelineTests
 
         var pipeline = new JourneyPipeline(grid, cities, new StubRouter([]));
         Assert.Null(pipeline.Compute(scaler: 1.0f));
+    }
+
+    [Fact]
+    public void BoundingBox_ReturnsExpectedMinMax_NormalCell()
+    {
+        var cell = new GridCell(spawnable: true, new Position(10.0, 20.0), latSize: 2.0, lonSize: 4.0);
+        var (min, max) = cell.BoundingBox;
+
+        Assert.Equal(8.0, min.Longitude);
+        Assert.Equal(19.0, min.Latitude);
+        Assert.Equal(12.0, max.Longitude);
+        Assert.Equal(21.0, max.Latitude);
+    }
+
+    public void BoundingBox_ReturnsExpectedMinMax_UnitCell()
+    {
+        var cell = new GridCell(spawnable: true, new Position(0.0, 0.0), latSize: 1.0, lonSize: 1.0);
+        var (min, max) = cell.BoundingBox;
+
+        Assert.Equal(-0.5, min.Longitude);
+        Assert.Equal(-0.5, min.Latitude);
+        Assert.Equal(0.5, max.Longitude);
+        Assert.Equal(0.5, max.Latitude);
+    }
+
+    public void BoundingBox_ContainsCenterPoint()
+    {
+        var cell = new GridCell(spawnable: true, new Position(5.0, 5.0), latSize: 2.0, lonSize: 2.0);
+        var (min, max) = cell.BoundingBox;
+
+        Assert.InRange(cell.Centerpoint.Longitude, min.Longitude, max.Longitude);
+        Assert.InRange(cell.Centerpoint.Latitude, min.Latitude, max.Latitude);
     }
 
 }
