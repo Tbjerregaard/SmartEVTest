@@ -1,7 +1,7 @@
 namespace Core.Benchmark;
 
 using BenchmarkDotNet.Attributes;
-using Core.Utils;
+using Engine.Utils;
 using System.Threading.Tasks;
 
 [MemoryDiagnoser]
