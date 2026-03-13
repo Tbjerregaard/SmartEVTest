@@ -13,7 +13,6 @@ public enum Socket : byte
     NACS
 }
 
-
 public static class SocketExtensions
 {
     /// <summary>
