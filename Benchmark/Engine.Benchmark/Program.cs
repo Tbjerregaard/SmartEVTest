@@ -1,2 +1,13 @@
-﻿// See https://aka.ms/new-console-template for more information
-Console.WriteLine("Hello, World!");
+namespace Headless;
+
+using BenchmarkDotNet.Running;
+using Engine.Benchmark;
+
+public static class Program
+{
+    public static async Task Main()
+    {
+        //BenchmarkRunner.Run<PolilineBufferBenchmark>();
+        BenchmarkRunner.Run<StationsAroundPolyline>();
+    }
+}
