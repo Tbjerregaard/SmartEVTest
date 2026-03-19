@@ -1,40 +1,44 @@
 using Engine.Vehicles;
 
 /// <summary>
-/// This class tests the GetCarsInPeriod class and methods.
+/// This class tests the CarsInPeriod class and methods.
 /// </summary>
-public class GetCarsInPeriodTests
+public class GetCarsInPeriodTest
 {
-    [Fact]
-    public void PeriodInSeconds_Is1800() => Assert.Equal(1800u, GetCarsInPeriod.PeriodInSeconds);
+    private const uint _testPeriod = 900; // 900 seconds = 30 minutes
 
     [Fact]
     public void ZeroFraction_ReturnsZero()
     {
-        var result = GetCarsInPeriod.GetAmount(DayOfWeek.Monday, 8, 0.0);
-        Assert.Equal(0, result);
+        var result = CarsInPeriod.GetCarsInPeriod(DayOfWeek.Monday, 8, 0.0, _testPeriod);
+        
+        Assert.Equal(0, result.Amount);
     }
 
     [Fact]
     public void DoubleFraction_DoublesResult()
     {
-        var half = GetCarsInPeriod.GetAmount(DayOfWeek.Monday, 8, 0.5);
-        var full = GetCarsInPeriod.GetAmount(DayOfWeek.Monday, 8, 1.0);
-        Assert.Equal(half * 2, full);
+        var half = CarsInPeriod.GetCarsInPeriod(DayOfWeek.Monday, 8, 0.5, _testPeriod);
+        var full = CarsInPeriod.GetCarsInPeriod(DayOfWeek.Monday, 8, 1.0, _testPeriod);
+        
+        // Putting ±1 here accounts for truncating.
+        Assert.InRange(full.Amount, (half.Amount * 2) - 1, (half.Amount * 2) + 1);
     }
 
     [Fact]
     public void PeakHour_ReturnsMoreThanOffPeakHour()
     {
-        var peak = GetCarsInPeriod.GetAmount(DayOfWeek.Monday, 8, 0.5);    // Monday 8am
-        var offPeak = GetCarsInPeriod.GetAmount(DayOfWeek.Sunday, 2, 0.5); // Sunday 2am
-        Assert.True(peak > offPeak);
+        var peak = CarsInPeriod.GetCarsInPeriod(DayOfWeek.Monday, 8, 0.5, _testPeriod);
+        var offPeak = CarsInPeriod.GetCarsInPeriod(DayOfWeek.Sunday, 2, 0.5, _testPeriod);
+        
+        Assert.True(peak.Amount > offPeak.Amount);
     }
 
     [Fact]
-    public void GetAmount_NeverReturnsNegative()
+    public void GetCarsInPeriod_NeverReturnsNegative()
     {
-        var result = GetCarsInPeriod.GetAmount(DayOfWeek.Sunday, 2, 0.5);
-        Assert.True(result >= 0);
+        var result = CarsInPeriod.GetCarsInPeriod(DayOfWeek.Sunday, 2, 0.5, _testPeriod);
+        
+        Assert.True(result.Amount >= 0);
     }
 }

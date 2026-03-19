@@ -4,17 +4,16 @@ using Engine.DayCycles;
 using System;
 
 /// <summary>
+/// The number of EVs to spawn and the period in seconds over which to spawn them.
+/// </summary>
+public record AmountOfCarsInPeriod(int Amount, uint SpawningFrequency);
+
+/// <summary>
 /// This class provides the amount of cars on the road and the period in seconds for which 
 /// the amount of cars is calculated.
 /// </summary>
-public class GetCarsInPeriod
+public class CarsInPeriod
 {
-    /// <summary>
-    /// The period in seconds for which the amount of cars is calculated. 
-    /// </summary>
-    public const uint PeriodInSeconds = 60 * 30;
-    private const double _periodsPerHour = 60 * 60 / PeriodInSeconds;
-
     /// <summary>
     /// Gets the estimated number of cars to spawn in the current period based on the 
     /// day of the week and hour of the day.
@@ -23,10 +22,15 @@ public class GetCarsInPeriod
     /// <param name="hourOfDay"> The hour of the day. </param>
     /// <param name="SpawnFraction"> A fraction of the total EVs that are supposed to be 
     ///                              on the road, to avoid overpopulating the system. </param>
-    /// <returns> The number of cars to spawn. </returns>
-    public static int GetAmount(DayOfWeek day, int hourOfDay, double SpawnFraction)
+    /// <param name="SpawningFrequency"> The frequency to spawn cars in, in seconds. </param>
+    /// <returns> A SpawnInstruction containing the amount of cars to spawn and the period. </returns>
+    public static AmountOfCarsInPeriod GetCarsInPeriod(DayOfWeek day, int hourOfDay, double SpawnFraction, uint SpawningFrequency)
     {
-        var fractionPerPeriod = SpawnFraction / _periodsPerHour;
-        return (int)(CarsOnRoad.GetEVsOnRoad(day, hourOfDay) * fractionPerPeriod);
+        var periodsPerHour = 60.0 * 60.0 / SpawningFrequency;
+        var fractionPerPeriod = SpawnFraction / periodsPerHour;
+
+        var amount = (int)(CarsOnRoad.GetEVsOnRoad(day, hourOfDay) * fractionPerPeriod);
+
+        return new AmountOfCarsInPeriod(amount, SpawningFrequency);
     }
 }
