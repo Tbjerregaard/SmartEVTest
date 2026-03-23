@@ -1,13 +1,11 @@
 namespace Core.Vehicles;
 
-using Core.Shared;
+using Core.Routing;
 
-// 4 + 4 + 9 = 17 bytes
-public class EV(uint id, Battery battery, Preferences preferences)
+public struct EV(Battery battery, Preferences preferences, Journey journey, ushort efficiency)
 {
-    public readonly uint Id = id; // 4 bytes
-    public readonly Preferences Preferences = preferences; // 4 bytes
-    private Battery _battery = battery; // 9 bytes
-    
-    // Methods that update battery
+    public readonly Preferences Preferences = preferences;
+    public Battery Battery { get; } = battery;
+    public ushort Efficiency { get; } = efficiency;
+    private Journey _journey = journey;
 }

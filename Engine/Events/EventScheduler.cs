@@ -5,11 +5,11 @@ namespace Engine.Events;
 /// </summary>
 public class EventScheduler
 {
-    private readonly PriorityQueue<IEvent, (uint, int)> _eventPriorityQueue = new();
-    private readonly HashSet<(int, ushort)> _canceledEvents = new();
-    private readonly Dictionary<int, uint> _canceledEndChargingEVIds = new();
+    private readonly PriorityQueue<Event, (uint, uint)> _eventPriorityQueue = new();
+    private readonly HashSet<int> _canceledEvents = [];
+    private readonly Dictionary<int, uint> _canceledEndChargingEVIds = [];
     private uint _currentTime = 0;
-    private int _evSequeenceId = 0;
+    private uint _evSequeenceId = 0;
 
     /// <summary>
     /// Gets the number of events current scheduled in the Eventsheduler.
@@ -20,10 +20,10 @@ public class EventScheduler
     /// Schedules an event to be executed at a specific timestamp.
     /// </summary>
     /// <param name="e">The event to schedule.</param>
-    /// <param name="timestamp">The timestamp at which to execute the event.</param>
     /// <exception cref="ArgumentOutOfRangeException">Thrown if the timestamp is in the past.</exception>
-    public void ScheduleEvent(IEvent e, uint timestamp)
+    public void ScheduleEvent(Event e)
     {
+        var timestamp = e.Time;
         if (timestamp < _currentTime)
             throw new ArgumentOutOfRangeException($"Event timestamp {timestamp} is in the past (current time: {_currentTime})");
         _eventPriorityQueue.Enqueue(e, (timestamp, _evSequeenceId++));
@@ -32,18 +32,17 @@ public class EventScheduler
     /// <summary>
     /// Retrives and removes the next event from the EventScheduler.
     /// </summary>
-    /// <returns>The next event to be executed, or null if no events are scheduled.</returns>
-    public IEvent? GetNextEvent()
+    /// <returns>The next event in the queue to get resolved.</returns>
+    public Event? GetNextEvent()
     {
         if (_eventPriorityQueue.Count == 0)
             return null;
 
         _eventPriorityQueue.TryDequeue(out var e, out var priority);
         _currentTime = priority.Item1;
-
-        if (e is ReservationRequest request && _canceledEvents.Contains((request.EVId, request.StationId)))
+        if (e is CancelableEvent cancelableEvent && _canceledEvents.Contains(cancelableEvent.EVId))
         {
-            _canceledEvents.Remove((request.EVId, request.StationId));
+            _canceledEvents.Remove(cancelableEvent.EVId);
             return GetNextEvent();
         }
 
@@ -55,6 +54,7 @@ public class EventScheduler
             return GetNextEvent();
         }
 
+
         return e;
     }
 
@@ -65,13 +65,19 @@ public class EventScheduler
     public uint GetCurrentTime() => _currentTime;
 
     /// <summary>
-    /// Cancels a previously scheduled event based on the provided CancelRequest.
+    /// Cancels a CancelableEvent by adding it to the set of canceled events.
+    /// When the event is dequeued, it will be skipped.
     /// </summary>
-    /// <param name="request">The cancel request containing the event details to cancel.</param>
-    public void CancelEvent(CancelRequest request)
+    /// <param name="evID">The evID from which a CancelableEvent should be cancelled bu.</param>
+    /// <exception cref="InvalidOperationException">
+    /// Thrown when attempting to cancel an event for an EV that already has a pending
+    /// cancellation, violating the invariant that an EV can only have one cancelable event at a time.
+    /// </exception>
+    public void CancelEvent(int evID)
     {
-        var e = (request.EVId, request.StationId);
-        _canceledEvents.Add(e);
+        if (_canceledEvents.Contains(evID))
+            throw new InvalidOperationException($"Event with EVId {evID} is already cancelled.");
+        _canceledEvents.Add(evID);
     }
 
     /// <summary>
@@ -86,7 +92,7 @@ public class EventScheduler
     /// Peeks at the next event in the EventSheduler without removing it from the queue.
     /// </summary>
     /// <returns>The next event in the queue, or null if the queue is empty.</returns>
-    public IEvent? PeekNextEvent()
+    public Event? PeekNextEvent()
     {
         if (_eventPriorityQueue.Count == 0) return null;
         _eventPriorityQueue.TryPeek(out var e, out _);

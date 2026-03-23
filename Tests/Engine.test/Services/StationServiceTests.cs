@@ -167,7 +167,7 @@ public class StationServiceTests
             Socket: socket);
     }
 
-    private static EndCharging AsEndCharging(IEvent? e)
+    private static EndCharging AsEndCharging(Event? e)
     {
         Assert.NotNull(e);
         Assert.IsType<EndCharging>(e);

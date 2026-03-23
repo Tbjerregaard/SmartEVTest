@@ -90,11 +90,11 @@ public class StationService
 
     // TODO: Handle reservationrequest
     public void HandleReservationRequest(ReservationRequest e)
-        => _scheduler.ScheduleEvent(new ArriveAtStation(e.EVId, e.StationId, e.Time), e.Time);
+        => _scheduler.ScheduleEvent(new ArriveAtStation(e.EVId, e.StationId, e.Time));
 
     // TODO: handle cancelrequest
     public void HandleCancelRequest(CancelRequest e)
-        => _scheduler.CancelEvent(e);
+        => _scheduler.CancelEvent(e.EVId);
 
     /// <summary>
     /// Called when an EV arrives at a station.
@@ -223,8 +223,7 @@ public class StationService
                     state.LastResult = result;
 
                     _scheduler.ScheduleEvent(
-                        new EndCharging(next.EVId, single.Id, result.FinishTimeA!.Value),
-                        result.FinishTimeA!.Value);
+                        new EndCharging(next.EVId, single.Id, result.FinishTimeA!.Value));
                     break;
                 }
 
@@ -269,11 +268,9 @@ public class StationService
                         state.LastResult = result;
 
                         _scheduler.ScheduleEvent(
-                            new EndCharging(state.SessionA.EVId, dual.Id, result.FinishTimeA!.Value),
-                            result.FinishTimeA!.Value);
+                            new EndCharging(state.SessionA.EVId, dual.Id, result.FinishTimeA!.Value));
                         _scheduler.ScheduleEvent(
-                            new EndCharging(state.SessionB.EVId, dual.Id, result.FinishTimeB!.Value),
-                            result.FinishTimeB!.Value);
+                            new EndCharging(state.SessionB.EVId, dual.Id, result.FinishTimeB!.Value));
                     }
                     else if (state.SessionA is not null)
                     {
@@ -287,8 +284,7 @@ public class StationService
                         state.LastResult = result;
 
                         _scheduler.ScheduleEvent(
-                            new EndCharging(state.SessionA.EVId, dual.Id, result.FinishTimeA!.Value),
-                            result.FinishTimeA!.Value);
+                            new EndCharging(state.SessionA.EVId, dual.Id, result.FinishTimeA!.Value));
                     }
                     else if (state.SessionB is not null)
                     {
@@ -302,8 +298,7 @@ public class StationService
                         state.LastResult = result;
 
                         _scheduler.ScheduleEvent(
-                            new EndCharging(state.SessionB.EVId, dual.Id, result.FinishTimeB!.Value),
-                            result.FinishTimeB!.Value);
+                            new EndCharging(state.SessionB.EVId, dual.Id, result.FinishTimeB!.Value));
                     }
 
                     break;
