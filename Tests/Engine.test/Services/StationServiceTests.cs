@@ -53,10 +53,12 @@ public class StationServiceTests
         // Only ev1 should have an EndCharging scheduled — ev2 and ev3 are queued
         var firstEnd = AsEndCharging(scheduler.GetNextEvent());
         Assert.Equal(1, firstEnd.EVId);
+        Assert.Equal(2, service.GetChargerState(1)!.Queue.Count);
         Assert.Null(scheduler.GetNextEvent()); // ev2 and ev3 still queued
 
         // ev1 finishes — service should start ev2
         service.HandleEndCharging(firstEnd);
+        Assert.Single(service.GetChargerState(1)!.Queue); // ev3 still queued
 
         var secondEnd = AsEndCharging(scheduler.GetNextEvent());
         Assert.Equal(2, secondEnd.EVId);
@@ -80,13 +82,7 @@ public class StationServiceTests
         // Both sides occupied — ev3 is queued
         var ev1End = AsEndCharging(scheduler.GetNextEvent());
         Assert.Equal(1, ev1End.EVId);
-        Assert.Equal(1, scheduler.QueueCount);
-
-        // Both sides occupied — ev1 finishes first (small delta)
-        // Both sides occupied — ev3 is queued
-        // Only ONE event should be dequeued here to verify ev1 finishes first
-        Assert.Equal(1, ev1End.EVId);
-        Assert.Equal(1, scheduler.QueueCount);
+        Assert.Single(service.GetChargerState(1)!.Queue);
         Assert.NotNull(scheduler.PeekNextEvent());
 
         service.HandleEndCharging(ev1End);
@@ -94,6 +90,7 @@ public class StationServiceTests
         // ev2 rescheduled + ev3 newly scheduled
         var nextA = AsEndCharging(scheduler.GetNextEvent());
         var nextB = AsEndCharging(scheduler.GetNextEvent());
+        Assert.Empty(service.GetChargerState(1)!.Queue);
 
         var ev2Event = nextA.EVId == 2u ? nextA : nextB;
         var ev3Event = nextA.EVId == 3u ? nextA : nextB;

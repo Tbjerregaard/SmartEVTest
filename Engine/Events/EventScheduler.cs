@@ -12,11 +12,6 @@ public class EventScheduler
     private uint _evSequeenceId = 0;
 
     /// <summary>
-    /// Gets the number of events current scheduled in the Eventsheduler.
-    /// </summary>
-    public int QueueCount => _eventPriorityQueue.Count;
-
-    /// <summary>
     /// Schedules an event to be executed at a specific timestamp.
     /// </summary>
     /// <param name="e">The event to schedule.</param>
@@ -53,7 +48,6 @@ public class EventScheduler
             _canceledEndChargingEVIds.Remove(endCharging.EVId);
             return GetNextEvent();
         }
-
 
         return e;
     }
