@@ -7,6 +7,9 @@ using Engine.Metrics;
 public abstract record Event(Time Time);
 public abstract record CancelableEvent(int EVId, Time Time) : Event(Time);
 
+//TODO: THIS SHOULD BE CHANGE TO THE CORRECT FINDCANDIDATE EVENT
+public record FindCandidate(int EVId, Time Time) : Event(Time);
+
 // ----------- DOMAIN EVENTS ----------- //
 
 // Functionality:
@@ -45,6 +48,11 @@ public record EndCharging(int EVId, int ChargerId, Time Time) : CancelableEvent(
 public record ArriveAtDestination(int EVId, Time Time) : CancelableEvent(EVId, Time);
 
 // ---------- NON-DOMAIN EVENTS ---------- //
+
+// Functionality:
+// - Checks if an EV should look for Stations
+public record CheckUrgency(int EVId, Time Time) : Event(Time);
+
 
 // Spawn
 // Functionality:
