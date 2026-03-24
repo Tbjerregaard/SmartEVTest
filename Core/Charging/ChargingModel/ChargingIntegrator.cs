@@ -185,6 +185,16 @@ public sealed class ChargingIntegrator(uint stepSeconds)
         double? aSoCWhenBFinish = null;
         Time t = 0;
 
+        (double newSoc, double delivered, Time? finish) Step(
+            double soc, double target, double capacityKWh, double power, double stepHours)
+        {
+            var delta = power * stepHours;
+            var remaining = (target - soc) * capacityKWh;
+            if (delta >= remaining)
+                return (target, remaining, simNow + t);
+            return (soc + (delta / capacityKWh), delta, null);
+        }
+
         while (true)
         {
             var aFinished = finishA.HasValue || socA >= targetSoC_A;
@@ -210,56 +220,33 @@ public sealed class ChargingIntegrator(uint stepSeconds)
 
             if (!aFinished)
             {
-                var delta = powerA * stepHours;
-                var remaining = (targetSoC_A - socA) * evA.CapacityKWh;
-
-                if (delta >= remaining)
-                {
-                    deliveredA = remaining;
-                    energyA += remaining;
-                    socA = targetSoC_A;
-                    finishA = simNow + t;
-                    bSoCWhenAFinish = socB;
-                }
-                else
-                {
-                    deliveredA = delta;
-                    energyA += delta;
-                    socA += delta / evA.CapacityKWh;
-                }
+                var (newSoc, delivered, finish) = Step(socA, targetSoC_A, evA.CapacityKWh, powerA, stepHours);
+                if (finish.HasValue) bSoCWhenAFinish = socB;
+                socA = newSoc;
+                deliveredA = delivered;
+                energyA += delivered;
+                finishA = finish;
             }
 
             if (!bFinished)
             {
-                var delta = powerB * stepHours;
-                var remaining = (targetSoC_B - socB) * evB.CapacityKWh;
-
-                if (delta >= remaining)
-                {
-                    deliveredB = remaining;
-                    energyB += remaining;
-                    socB = targetSoC_B;
-                    finishB = simNow + t;
-                    aSoCWhenBFinish = socA;
-                }
-                else
-                {
-                    deliveredB = delta;
-                    energyB += delta;
-                    socB += delta / evB.CapacityKWh;
-                }
+                var (newSoc, delivered, finish) = Step(socB, targetSoC_B, evB.CapacityKWh, powerB, stepHours);
+                if (finish.HasValue) aSoCWhenBFinish = socA;
+                socB = newSoc;
+                deliveredB = delivered;
+                energyB += delivered;
+                finishB = finish;
             }
 
             wastedEnergy += (maxKW * stepHours) - (deliveredA + deliveredB);
-
             t += step;
         }
 
         return new IntegrationResult(
             SocA: socA,
             SocB: socB,
-            FinishTimeA: finishA.HasValue ? finishA.Value : null,
-            FinishTimeB: finishB.HasValue ? finishB.Value : null,
+            FinishTimeA: finishA,
+            FinishTimeB: finishB,
             EnergyDeliveredKWhA: energyA,
             EnergyDeliveredKWhB: energyB,
             WastedEnergyKWh: wastedEnergy,

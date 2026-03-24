@@ -81,6 +81,15 @@ public static class Init
             var spawnGrid = InitSpawnGrid(settings.PolygonPath);
             return new SpatialGrid(spawnGrid, stations);
         });
+
+
+        services.AddSingleton(sp =>
+        {
+            var stations = sp.GetRequiredService<Dictionary<ushort, Station>>();
+            var integrator = sp.GetRequiredService<ChargingIntegrator>();
+            var scheduler = sp.GetRequiredService<EventScheduler>();
+            return new StationService(stations.Values, integrator, scheduler);
+        });
     }
 
     private static SpawnGrid InitSpawnGrid(FileInfo polygonPath)
